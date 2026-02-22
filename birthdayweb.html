@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Gift for Tuly</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --env-color: #ff85a2;
+            --env-dark: #f06292;
+            --paper-color: #ffffff;
+            --text-color: #4a148c;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #fce4ec 0%, #e1bee7 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- Transitions & Cards --- */
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 3rem;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 320px;
+            animation: fadeIn 0.5s ease-out;
+            backdrop-filter: blur(5px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden { display: none; }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            margin: 10px;
+        }
+
+        .btn-yes { background: #4caf50; color: white; }
+        .btn-yes:hover { transform: scale(1.1); background: #45a049; }
+        .btn-no { background: #eee; color: #666; }
+
+        /* --- The Envelope System --- */
+        .envelope-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            background-color: var(--env-dark);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        /* The actual message/photo inside */
+        .letter {
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            width: 80%;
+            height: 90%;
+            background: var(--paper-color);
+            border-radius: 10px;
+            z-index: 2;
+            transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 15px;
+            box-sizing: border-box;
+            text-align: center;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+        }
+
+        .letter img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--env-color);
+            margin-bottom: 10px;
+        }
+
+        .letter h3 {
+            font-size: 1.1rem;
+            margin: 5px 0;
+            color: var(--text-color);
+        }
+
+        /* Envelope Flaps */
+        .envelope-wrapper::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            z-index: 4;
+            border-top: 110px solid transparent;
+            border-right: 150px solid var(--env-color);
+            border-bottom: 100px solid var(--env-color);
+            border-left: 150px solid var(--env-color);
+            border-radius: 10px;
+        }
+
+        /* Top Flap (The Lid) */
+        .lid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-right: 150px solid transparent;
+            border-bottom: 110px solid transparent;
+            border-left: 150px solid transparent;
+            border-top: 110px solid var(--env-dark);
+            transform-origin: top;
+            transition: 0.5s transform 0.3s;
+            z-index: 5;
+        }
+
+        /* Animation States */
+        .open .lid {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .open .letter {
+            transform: translateY(-130px);
+            height: 250px;
+            z-index: 3;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="step1" class="card">
+        <h2 style="color: var(--text-color);">Wanna be surprised? ✨</h2>
+        <button class="btn-yes" onclick="goToStep(2)">YES!</button>
+        <button class="btn-no" onclick="alert('No is not an option! 😂')">No</button>
+    </div>
+
+    <div id="step2" class="card hidden">
+        <h2 style="color: var(--text-color);">Are you Serious? 🤔</h2>
+        <button class="btn-yes" onclick="revealEnvelope()">YES, I AM!</button>
+        <button class="btn-no" onclick="goToStep(1)">Wait, go back</button>
+    </div>
+
+    <div id="step3" class="hidden">
+        <div id="envelope" class="envelope-wrapper">
+            <div class="lid"></div>
+            <div class="letter">
+                <img src="tuly.jpg" alt="Tuly" onerror="this.src='https://i.pravatar.cc/150?u=tuly'">
+                <h3>Belated Happy Birthday, Tuly! 🎂</h3>
+                <p style="font-size: 0.8rem; color: #666;">Better late than never! You are amazing! 🌟</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goToStep(step) {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('step' + step).classList.remove('hidden');
+        }
+
+        function revealEnvelope() {
+            goToStep(3);
+            
+            // Short delay before opening the envelope automatically
+            setTimeout(() => {
+                document.getElementById('envelope').classList.add('open');
+                triggerConfetti();
+            }, 500);
+        }
+
+        function triggerConfetti() {
+            var end = Date.now() + (3 * 1000);
+            var colors = ['#ff4081', '#7c4dff', '#ffffff'];
+
+            (function frame() {
+                confetti({
+                    particleCount: 3,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: colors
+                });
+                confetti({
+                    particleCount: 3,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: colors
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+    </script>
+</body>
+</html>
